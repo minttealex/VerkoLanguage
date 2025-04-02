@@ -114,6 +114,7 @@ namespace VerkoLanguage
             }
 
 
+
             // Проверка телефона
             if (string.IsNullOrWhiteSpace(_currentClient.Phone))
             {

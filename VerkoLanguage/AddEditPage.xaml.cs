@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace VerkoLanguage
 {
@@ -108,11 +109,26 @@ namespace VerkoLanguage
             {
                 errors.AppendLine("Укажите email клиента");
             }
-            else if (!Regex.IsMatch(_currentClient.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$"))
+            else if (_currentClient.Email.Split('@')[0].Length == 0)
             {
-                errors.AppendLine("Укажите корректный email (только латинские буквы)");
+                errors.AppendLine("Email должен содержать имя пользователя перед символом @");
             }
-
+            else if (_currentClient.Email.Split('@').Length != 2)
+            {
+                errors.AppendLine("Email должен содержать один символ @");
+            }
+            else if (_currentClient.Email.Split('@')[1].Split('.').Length < 2)
+            {
+                errors.AppendLine("Email должен содержать домен и домен верхнего уровня (например, example.com)");
+            }
+            else if (_currentClient.Email.Split('@')[1].Split('.')[1].Length < 2)
+            {
+                errors.AppendLine("Домен верхнего уровня должен содержать не менее двух символов");
+            }
+            else if (!Regex.IsMatch(_currentClient.Email, @"^[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
+            {
+                errors.AppendLine("Email может содержать только латинские буквы, цифры, точку, дефис и @");
+            }
 
 
             // Проверка телефона
@@ -179,20 +195,23 @@ namespace VerkoLanguage
             }
         }
 
-
-
-
         private void ChangePhotoButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog myOpenFileDialog = new OpenFileDialog();
+            Microsoft.Win32.OpenFileDialog myOpenFileDialog = new Microsoft.Win32.OpenFileDialog();
 
+            // Рабочий каталог уже установлен на нужный путь,
+            // диалоговое окно должно открываться в папке "Клиенты"
+            myOpenFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+
+            // Открываем диалоговое окно для выбора файла
             if (myOpenFileDialog.ShowDialog() == true)
             {
-
-                _currentClient.PhotoPath = myOpenFileDialog.FileName;
-                PhotoPathImage.Source = new BitmapImage(new Uri(myOpenFileDialog.FileName));
+                _currentClient.PhotoPath = myOpenFileDialog.FileName; // Сохраняем путь к выбранному файлу
+                PhotoPathImage.Source = new BitmapImage(new Uri(myOpenFileDialog.FileName)); // Загружаем изображение
             }
         }
+
+
     }
 
 }

@@ -195,23 +195,38 @@ namespace VerkoLanguage
             }
         }
 
-        private void ChangePhotoButton_Click(object sender, RoutedEventArgs e)
+        public static string GetRelativePath(string basePath, string absolutePath)
         {
-            Microsoft.Win32.OpenFileDialog myOpenFileDialog = new Microsoft.Win32.OpenFileDialog();
-
-            // Рабочий каталог уже установлен на нужный путь,
-            // диалоговое окно должно открываться в папке "Клиенты"
-            myOpenFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
-
-            // Открываем диалоговое окно для выбора файла
-            if (myOpenFileDialog.ShowDialog() == true)
-            {
-                _currentClient.PhotoPath = myOpenFileDialog.FileName; // Сохраняем путь к выбранному файлу
-                PhotoPathImage.Source = new BitmapImage(new Uri(myOpenFileDialog.FileName)); // Загружаем изображение
-            }
+            Uri baseUri = new Uri(basePath);
+            Uri absoluteUri = new Uri(absolutePath);
+            Uri relativeUri = baseUri.MakeRelativeUri(absoluteUri);
+            return relativeUri.ToString();
         }
 
+        private void ChangePhotoButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog myOpenFileDialog = new OpenFileDialog();
+            myOpenFileDialog.InitialDirectory = @"C:\Users\ASUS\source\repos\VerkoLanguage\VerkoLanguage\Клиенты";
+            string clientsDirectory = myOpenFileDialog.InitialDirectory;
 
+            if (myOpenFileDialog.ShowDialog() == true)
+            {
+                // Получаем полный путь к выбранному файлу
+                string fullPath = myOpenFileDialog.FileName;
+
+                // Получаем имя файла
+                string fileName = System.IO.Path.GetFileName(fullPath);
+
+                // Формируем путь в формате "Клиенты\имя_файла"
+                string relativePath = "Клиенты\\" + fileName;
+
+                // Сохраняем относительный путь
+                _currentClient.PhotoPath = relativePath;
+
+                // Устанавливаем изображение в интерфейсе
+                PhotoPathImage.Source = new BitmapImage(new Uri(fullPath));
+            }
+        }
     }
 
 }
